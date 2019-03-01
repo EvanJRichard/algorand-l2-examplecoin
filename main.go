@@ -12,26 +12,38 @@ import (
 
 // This util is a tool that crawls the blockchain
 // and outputs a csv file of the current examplecoin state.
-var coinKey = flag.String("coinKey", "", "The pubkey of the coin's manager.")
+var coinKey = flag.String("coinkey", "", "The pubkey of the coin's manager.")
 var verboseFlag = flag.Bool("verbose", false, "Print extra debug info during operation.")
+var firstRound = flag.Uint64("firstround", 1, "the first round from which to start scanning")
+var lastRound = flag.Uint64("lastround", 301, "the last round at which to stop scanning")
 
 func main() {
-	// these could be made into flag arguments,
+	flag.Parse()
+	// These could be made into flag arguments like coinKey,
 	// or maybe you could read these in through a config file.
 	// For this example, we're just going to hardcode them.
-	localNodeURL := "fill me in!"
-	algodToken := "fill me in!"
+	localNodeURL := "http://127.0.0.1:51275"                                         // TODO(you): fill me in!
+	algodToken := "0af285fbb066a145e38df913ad3ff637b76f1b178022a06215042ea620488a73" // TODO(you): fill me in!
 
 	algodURL, err := url.Parse(localNodeURL)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Cannot parse algod URL %s: %v\n", localNodeURL, err)
 		os.Exit(1)
 	}
-
+	if len(*coinKey) == 0 {
+		fmt.Fprintf(os.Stderr, "No master coin key passed, exiting.")
+		os.Exit(1)
+	}
 	restClient := client.MakeRestClient(*algodURL, algodToken)
+
 	results := make(map[string]uint64)
-	curRound := uint64(1)     // TODO evan make this a flag
-	finalRound := uint64(305) // TODO evan make this a flag
+	curRound := *firstRound
+	finalRound := *lastRound
+	if curRound > finalRound {
+		fmt.Fprintf(os.Stderr, "first round %d is after last round %d, exiting \n", curRound, finalRound)
+		os.Exit(1)
+	}
+
 	sawInitializeMessage := false
 	for {
 		if curRound > finalRound {
@@ -76,7 +88,7 @@ func main() {
 				case examplecoin.NoteTransfer:
 					if results, err = examplecoin.ProcessTransfer(results, note.Transfer, txn); err == nil {
 						if *verboseFlag {
-
+							fmt.Printf("Saw a transfer message from %s to %s of amount %d", note.Transfer.Source, note.Transfer.Destination, note.Transfer.Amount)
 						}
 					} else {
 						fmt.Printf("Error processing transfer message %v - err was \"%v\". Attempting to continue anyways.", note.Transfer, err)

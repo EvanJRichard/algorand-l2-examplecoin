@@ -19,11 +19,12 @@ func BuildInitializeNote(supply uint64) (initializeBlob client.BytesBase64) {
 }
 
 // BuildInitializeNote takes in the desired recipient as well as amount to send, and produces a blob for your note field
-func BuildTransferNote(amount uint64, to string) (transferBlob client.BytesBase64) {
+func BuildTransferNote(amount uint64, from, to string) (transferBlob client.BytesBase64) {
 	transferBlob = client.BytesBase64(protocol.Encode(NoteField{
 		Type: NoteTransfer,
 		Transfer: Transfer{
 			Amount:      amount,
+			Source:      from,
 			Destination: to,
 		},
 	}))
