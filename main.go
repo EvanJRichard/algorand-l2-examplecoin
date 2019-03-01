@@ -3,11 +3,12 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/algorand/algorand-l2-examplecoin/examplecoin"
-	"github.com/algorand/go-algorand/daemon/algod/api/client"
-	"github.com/algorand/go-algorand/protocol"
-	"net/url"
 	"os"
+
+	"github.com/algorand/algorand-l2-examplecoin/examplecoin"
+
+	"github.com/algorand/go-algorand-sdk/client/algod"
+	"github.com/algorand/go-algorand-sdk/encoding/msgpack"
 )
 
 // This util is a tool that crawls the blockchain
@@ -25,16 +26,15 @@ func main() {
 	localNodeURL := "http://127.0.0.1:51275"                                         // TODO(you): fill me in!
 	algodToken := "0af285fbb066a145e38df913ad3ff637b76f1b178022a06215042ea620488a73" // TODO(you): fill me in!
 
-	algodURL, err := url.Parse(localNodeURL)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Cannot parse algod URL %s: %v\n", localNodeURL, err)
-		os.Exit(1)
-	}
 	if len(*coinKey) == 0 {
 		fmt.Fprintf(os.Stderr, "No master coin key passed, exiting.")
 		os.Exit(1)
 	}
-	restClient := client.MakeRestClient(*algodURL, algodToken)
+	restClient, err := algod.MakeClient(localNodeURL, algodToken)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "error making algod client: %v \n", err)
+		os.Exit(1)
+	}
 
 	results := make(map[string]uint64)
 	curRound := *firstRound
@@ -66,11 +66,9 @@ func main() {
 				os.Exit(1)
 			}
 
-			dec := protocol.NewDecoderBytes(txn.Note)
-
 			for {
 				var note examplecoin.NoteField
-				err = dec.Decode(&note)
+				err = msgpack.Decode(txn.Note, &note)
 				if err != nil {
 					break
 				}

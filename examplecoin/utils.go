@@ -2,14 +2,17 @@ package examplecoin
 
 import (
 	"fmt"
-	"github.com/algorand/go-algorand/daemon/algod/api/client"
-	"github.com/algorand/go-algorand/daemon/algod/api/client/models"
-	"github.com/algorand/go-algorand/protocol"
+	"github.com/algorand/go-algorand-sdk/client/algod/models"
+	"github.com/algorand/go-algorand-sdk/encoding/msgpack"
 )
 
+// BytesBase64 is a base64-encoded binary blob (i.e., []byte), for
+// use with text encodings like JSON.
+type BytesBase64 []byte
+
 // BuildInitializeNote takes in the desired supply and produces a blob for your note field
-func BuildInitializeNote(supply uint64) (initializeBlob client.BytesBase64) {
-	initializeBlob = client.BytesBase64(protocol.Encode(NoteField{
+func BuildInitializeNote(supply uint64) (initializeBlob BytesBase64) {
+	initializeBlob = BytesBase64(msgpack.Encode(NoteField{
 		Type: NoteInitialize,
 		Initialize: Initialize{
 			Supply: supply,
@@ -19,8 +22,8 @@ func BuildInitializeNote(supply uint64) (initializeBlob client.BytesBase64) {
 }
 
 // BuildInitializeNote takes in the desired recipient as well as amount to send, and produces a blob for your note field
-func BuildTransferNote(amount uint64, from, to string) (transferBlob client.BytesBase64) {
-	transferBlob = client.BytesBase64(protocol.Encode(NoteField{
+func BuildTransferNote(amount uint64, from, to string) (transferBlob BytesBase64) {
+	transferBlob = BytesBase64(msgpack.Encode(NoteField{
 		Type: NoteTransfer,
 		Transfer: Transfer{
 			Amount:      amount,
@@ -45,7 +48,7 @@ func ProcessInitialize(curState map[string]uint64, initialize Initialize, wrappi
 // it updates the ledger, and returns an error if something went wrong.
 func ProcessTransfer(curState map[string]uint64, transfer Transfer, wrappingTxn models.Transaction) (map[string]uint64, error) {
 	if transfer.Source != wrappingTxn.From {
-		return curState, fmt.Errorf("transaction submitted by %s tries to spend %s's examplecoin", wrappingTxn.From, transfer.Source)
+		return curState, fmt.Errorf("transaction submitted by %s tries to spend %s's examplecoin", wrappingTxn.Payment.To, transfer.Source)
 	}
 	senderBalance, exists := curState[transfer.Source]
 	if !exists {
