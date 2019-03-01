@@ -1,7 +1,5 @@
 package examplecoin
 
-import "github.com/algorand/go-algorand/daemon/algod/api/client"
-
 // Initialize represents the start of an examplecoin ledger.
 type Initialize struct {
 	_struct struct{} `codec:",omitempty,omitemptyarray"`
@@ -14,8 +12,11 @@ type Initialize struct {
 type Transfer struct {
 	_struct struct{} `codec:",omitempty,omitemptyarray"`
 
+	// Destination designates who is sending examplecoin.
+	Source string `codec:"source"`
+
 	// Destination designates who is receiving examplecoin.
-	Destination client.ChecksumAddress `codec:"destination"`
+	Destination string `codec:"destination"`
 
 	// Amount designates how much examplecoin is being transferred.
 	Amount uint64 `codec:"Amount"`
