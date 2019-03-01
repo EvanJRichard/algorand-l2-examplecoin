@@ -30,7 +30,9 @@ func BuildTransferNote(amount uint64, to string) (transferBlob client.BytesBase6
 	return
 }
 
-func processInitialize(curState map[string]uint64, initialize Initialize, wrappingTxn models.Transaction) (map[string]uint64, error) {
+// ProcessInitialize accepts the current ledger, the initialize message, and the wrapping txn.
+// it updates the ledger, and returns an error if something went wrong.
+func ProcessInitialize(curState map[string]uint64, initialize Initialize, wrappingTxn models.Transaction) (map[string]uint64, error) {
 	if len(curState) != 0 {
 		return curState, fmt.Errorf("attempted to process an initialize message against a ledger that was already initialized")
 	}
@@ -38,7 +40,9 @@ func processInitialize(curState map[string]uint64, initialize Initialize, wrappi
 	return curState, nil
 }
 
-func processTransfer(curState map[string]uint64, transfer Transfer, wrappingTxn models.Transaction) (map[string]uint64, error) {
+// ProcessTransfer accepts the current ledger, the transfer message, and the wrapping txn.
+// it updates the ledger, and returns an error if something went wrong.
+func ProcessTransfer(curState map[string]uint64, transfer Transfer, wrappingTxn models.Transaction) (map[string]uint64, error) {
 	if transfer.Source != wrappingTxn.From {
 		return curState, fmt.Errorf("transaction submitted by %s tries to spend %s's examplecoin", wrappingTxn.From, transfer.Source)
 	}

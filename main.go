@@ -1,8 +1,9 @@
-package examplecoin
+package main
 
 import (
 	"flag"
 	"fmt"
+	"github.com/algorand/algorand-l2-examplecoin/examplecoin"
 	"github.com/algorand/go-algorand/daemon/algod/api/client"
 	"github.com/algorand/go-algorand/protocol"
 	"net/url"
@@ -15,7 +16,6 @@ var coinKey = flag.String("coinKey", "", "The pubkey of the coin's manager.")
 var verboseFlag = flag.Bool("verbose", false, "Print extra debug info during operation.")
 
 func main() {
-
 	// these could be made into flag arguments,
 	// or maybe you could read these in through a config file.
 	// For this example, we're just going to hardcode them.
@@ -57,15 +57,15 @@ func main() {
 			dec := protocol.NewDecoderBytes(txn.Note)
 
 			for {
-				var note NoteField
+				var note examplecoin.NoteField
 				err = dec.Decode(&note)
 				if err != nil {
 					break
 				}
 
 				switch note.Type {
-				case NoteInitialize:
-					if results, err = processInitialize(results, note.Initialize, txn); err == nil {
+				case examplecoin.NoteInitialize:
+					if results, err = examplecoin.ProcessInitialize(results, note.Initialize, txn); err == nil {
 						sawInitializeMessage = true
 						if *verboseFlag {
 							fmt.Printf("Saw an initialize message with supply %d.\n", note.Initialize.Supply)
@@ -73,8 +73,8 @@ func main() {
 					} else {
 						fmt.Printf("Error processing initialize message %v - err was \"%v\". Attempting to continue anyways.", note.Initialize, err)
 					}
-				case NoteTransfer:
-					if results, err = processTransfer(results, note.Transfer, txn); err == nil {
+				case examplecoin.NoteTransfer:
+					if results, err = examplecoin.ProcessTransfer(results, note.Transfer, txn); err == nil {
 						if *verboseFlag {
 
 						}
