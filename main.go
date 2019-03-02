@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/algorand/algorand-l2-examplecoin/examplecoin"
-
 	"github.com/algorand/go-algorand-sdk/client/algod"
 	"github.com/algorand/go-algorand-sdk/encoding/msgpack"
+
+	"github.com/algorand/algorand-l2-examplecoin/examplecoin"
 )
 
 // This util is a tool that crawls the blockchain
