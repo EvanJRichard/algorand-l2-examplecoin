@@ -23,8 +23,8 @@ func main() {
 	// These could be made into flag arguments like coinKey,
 	// or maybe you could read these in through a config file.
 	// For this example, we're just going to hardcode them.
-	localNodeURL := "fill me in!" // TODO(you): fill me in!
-	algodToken := "fill me in!"   // TODO(you): fill me in!
+	localNodeURL := "http://fill me in!" // TODO(you): fill me in!
+	algodToken := "fill me in!"          // TODO(you): fill me in!
 
 	if len(*coinKey) == 0 {
 		fmt.Fprintf(os.Stderr, "No master coin key passed, exiting.")
