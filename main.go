@@ -66,36 +66,32 @@ func main() {
 				os.Exit(1)
 			}
 
-			for {
-				var note examplecoin.NoteField
-				err = msgpack.Decode(txn.Note, &note)
-				if err != nil {
-					break
-				}
+			var note examplecoin.NoteField
+			err = msgpack.Decode(txn.Note, &note)
+			if err != nil {
+				continue
+			}
 
-				switch note.Type {
-				case examplecoin.NoteInitialize:
-					if results, err = examplecoin.ProcessInitialize(results, note.Initialize, txn); err == nil {
-						sawInitializeMessage = true
-						if *verboseFlag {
-							fmt.Printf("Saw an initialize message with supply %d.\n", note.Initialize.Supply)
-						}
-					} else {
-						fmt.Printf("Error processing initialize message %v - err was \"%v\". Behaving as though there were a decode error.", note.Initialize, err)
-						break
+			switch note.Type {
+			case examplecoin.NoteInitialize:
+				if results, err = examplecoin.ProcessInitialize(results, note.Initialize, txn); err == nil {
+					sawInitializeMessage = true
+					if *verboseFlag {
+						fmt.Printf("Saw an initialize message with supply %d.\n", note.Initialize.Supply)
 					}
-				case examplecoin.NoteTransfer:
-					if results, err = examplecoin.ProcessTransfer(results, note.Transfer, txn); err == nil {
-						if *verboseFlag {
-							fmt.Printf("Saw a transfer message from %s to %s of amount %d", note.Transfer.Source, note.Transfer.Destination, note.Transfer.Amount)
-						}
-					} else {
-						fmt.Printf("Error processing transfer message %v - err was \"%v\". Behaving as though there were a decode error.", note.Transfer, err)
-						break
-					}
-				default:
-					continue
+				} else {
+					fmt.Printf("Error processing initialize message %v - err was \"%v\". Behaving as though there were a decode error.", note.Initialize, err)
 				}
+			case examplecoin.NoteTransfer:
+				if results, err = examplecoin.ProcessTransfer(results, note.Transfer, txn); err == nil {
+					if *verboseFlag {
+						fmt.Printf("Saw a transfer message from %s to %s of amount %d", note.Transfer.Source, note.Transfer.Destination, note.Transfer.Amount)
+					}
+				} else {
+					fmt.Printf("Error processing transfer message %v - err was \"%v\". Behaving as though there were a decode error.", note.Transfer, err)
+				}
+			default:
+				continue
 			}
 		}
 		curRound++
