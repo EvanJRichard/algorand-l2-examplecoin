@@ -81,7 +81,8 @@ func main() {
 							fmt.Printf("Saw an initialize message with supply %d.\n", note.Initialize.Supply)
 						}
 					} else {
-						fmt.Printf("Error processing initialize message %v - err was \"%v\". Attempting to continue anyways.", note.Initialize, err)
+						fmt.Printf("Error processing initialize message %v - err was \"%v\". Behaving as though there were a decode error.", note.Initialize, err)
+						break
 					}
 				case examplecoin.NoteTransfer:
 					if results, err = examplecoin.ProcessTransfer(results, note.Transfer, txn); err == nil {
@@ -89,7 +90,8 @@ func main() {
 							fmt.Printf("Saw a transfer message from %s to %s of amount %d", note.Transfer.Source, note.Transfer.Destination, note.Transfer.Amount)
 						}
 					} else {
-						fmt.Printf("Error processing transfer message %v - err was \"%v\". Attempting to continue anyways.", note.Transfer, err)
+						fmt.Printf("Error processing transfer message %v - err was \"%v\". Behaving as though there were a decode error.", note.Transfer, err)
+						break
 					}
 				default:
 					continue
