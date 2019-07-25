@@ -63,3 +63,13 @@ func ProcessTransfer(curState map[string]uint64, transfer Transfer, wrappingTxn 
 
 	return curState, nil
 }
+
+// ReadTransferNote takes in the desired blob notefield and produces amount, to, from
+func ReadTransferNote(transferBlob BytesBase64, transfer Transfer) error {
+	err := msgpack.Decode(transferBlob, transfer)
+
+	if err != nil {
+		return err
+	}
+	return nil
+}
